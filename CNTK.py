@@ -24,6 +24,7 @@ void conv3(const float s[32][32][32][32], float t[32][32][32][32])
 	int x2 = threadIdx.x;
 	int y2 = threadIdx.y;
 
+        # d contains 34 * 34 items
 	__shared__ float d[32 + 2][32 + 2];
 	if (x2 == 0){
 		d[0][y2 + 1] = d[33][y2 + 1] = 0;
@@ -42,11 +43,13 @@ void conv3(const float s[32][32][32][32], float t[32][32][32][32])
 		d[x2 + 1][y2 + 1] = s[x1][y1][x2][y2];
 	__syncthreads();
 
+        #x2 y2 sync within 0 to 31 since we choose p = 3 we have 9 numbers to add
 	t[x1][y1][x2][y2] = d[x2][y2] + d[x2][y2 + 1] + d[x2][y2 + 2]
 					  + d[x2 + 1][y2] + d[x2 + 1][y2 + 1] + d[x2 + 1][y2 + 2]
 					  + d[x2 + 2][y2] + d[x2 + 2][y2 + 1] + d[x2 + 2][y2 + 2];
 
 }''', 'conv3')
+# 64 * 64 / 32* 32 = 4 
 conv_blocks = (63, 63)
 conv_threads = (32, 32)
 
